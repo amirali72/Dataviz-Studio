@@ -6,6 +6,9 @@ function App() {
   const [csvData, setCSVData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [parseLoading, setParseLoading] = useState(false);
+  const [chartType, setChartType] = useState("");
+  const [xaxis, setXAxis] = useState("");
+  const [yaxis, setYAxis] = useState("");
 
   const handleSelectFile = (e) => {
     const file = e.target.files[0];
@@ -32,9 +35,11 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    console.log(columns);
-  }, [columns]);
+  const generateChart = () => {
+    console.log(chartType);
+    console.log(xaxis);
+    console.log(yaxis);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -123,7 +128,66 @@ function App() {
             <h2 className="text-xl font-bold text-gray-700 mb-4">
               🎨 Build Your Chart
             </h2>
-            <p className="text-gray-500">Select columns after uploading data</p>
+            {csvData.length > 0 ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Chart Type:
+                  </label>
+                  <select
+                    onChange={(e) => setChartType(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="bar">Bar Chart</option>
+                    <option value="line">Line Chart</option>
+                    <option value="pie">Pie Chart</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    X-Axis:
+                  </label>
+                  <select
+                    onChange={(e) => setXAxis(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500"
+                  >
+                    {columns.map((cols, index) => (
+                      <option key={index} value={cols}>
+                        {cols}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Y-Axis:
+                  </label>
+                  <select
+                    onChange={(e) => setYAxis(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500"
+                  >
+                    {columns.map((cols, index) => (
+                      <option key={index} value={cols}>
+                        {cols}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
+                  onClick={generateChart}
+                >
+                  Generate Chart
+                </button>
+              </div>
+            ) : (
+              <p className="text-gray-500">
+                Select columns after uploading data
+              </p>
+            )}
           </div>
 
           {/* Box 4: Chart Display */}
