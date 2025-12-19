@@ -1,9 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-
+import { useState } from "react";
 
 function App() {
+  const [fileName, setFileName] = useState("");
+
+  const handleSelectFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.name.endsWith(".csv") || file.name.endsWith(".xlsx")) {
+      setFileName(e.target.files[0].name);
+    } else {
+      alert("Please select CSV/XLXS file ");
+      setFileName("");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -12,15 +23,28 @@ function App() {
         </h1>
 
         <div className="space-y-6">
-          
           {/* Box 1: Upload */}
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-xl font-bold text-gray-700 mb-4">
-              📁 Upload Your  
+              📁 Upload Your File
             </h2>
-            <button className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">
-              Choose File
-            </button>
+            <input
+              type="file"
+              accept=".csv,.xlsx, "
+              onChange={(e) => handleSelectFile(e)}
+              className="hidden"
+              id="file-input"
+            />
+            <label htmlFor="file-input">
+              <div className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer inline-block">
+                Choose File
+              </div>
+            </label>
+            {fileName && (
+              <div className="mt-4 text-green-600 font-medium">
+                File Uploaded ✅ : {fileName}
+              </div>
+            )}
           </div>
 
           {/* Box 2: Preview */}
@@ -46,7 +70,6 @@ function App() {
             </h2>
             <p className="text-gray-500">Chart will appear here</p>
           </div>
-
         </div>
       </div>
     </div>
@@ -54,4 +77,3 @@ function App() {
 }
 
 export default App;
-
