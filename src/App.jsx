@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import Papa from "papaparse";
+import { useCsvData } from "./hooks/useCsvData";
+import { useChartBuilder } from "./hooks/useChartBuilder";
 import {
   Bar,
   BarChart,
@@ -16,106 +17,33 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+
 function App() {
-  const [fileName, setFileName] = useState("");
-  const [csvData, setCSVData] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [parseLoading, setParseLoading] = useState(false);
-  const [chartType, setChartType] = useState("bar");
-  const [xaxis, setXAxis] = useState("");
-  const [yaxis, setYAxis] = useState("");
-  const [showChart, setShowChart] = useState(false);
-  const [chartConfig, setChartConfig] = useState({});
-  const [chartLoading, setChartLoading] = useState(false);
-  const [aggregation, setAggregation] = useState("");
-  const [chartData, setChartData] = useState([]);
-
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const {
+    fileName,
+    csvData,
+    columns,
+    parseLoading,
+    handleSelectFile,
+  } = useCsvData();
 
-  const handleSelectFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.name.endsWith(".csv") || file.name.endsWith(".xlsx")) {
-      setParseLoading(true);
-      setFileName(e.target.files[0].name);
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: true,
-        complete: function (results) {
-          setCSVData(results.data);
-          if (results.data.length > 0) {
-            const cols = Object.keys(results.data[0]);
-            setColumns(cols);
-            if (cols.length >= 2) {
-              setXAxis(cols[0]);
-              setYAxis(cols[1]);
-              setChartConfig({ type: "bar", x: cols[0], y: cols[1] });
-              setChartData([]);
-            }
-          }
-          setParseLoading(false);
-        },
-      });
-    } else {
-      alert("Please select CSV File");
-      setFileName("");
-    }
-  };
-
-  const aggregateData = () => {
-    if (!aggregation || aggregation === "") {
-      return csvData;
-    }
-
-    const groupedItems = csvData.reduce((accumulator, currentItem) => {
-      const category = currentItem[xaxis];
-      if (!accumulator[category]) {
-        accumulator[category] = [];
-      }
-      accumulator[category].push(currentItem[yaxis]);
-      return accumulator;
-    }, {});
-
-    const result = [];
-    for (const property in groupedItems) {
-      const values = groupedItems[property];
-      let aggregatedValue;
-
-      if (aggregation === "sum") {
-        aggregatedValue = values.reduce((a, b) => a + b, 0);
-      } else if (aggregation === "average") {
-        aggregatedValue = values.reduce((a, b) => a + b, 0) / values.length;
-      } else if (aggregation === "count") {
-        aggregatedValue = values.length;
-      } else if (aggregation === "min") {
-        aggregatedValue = Math.min(...values);
-      } else if (aggregation === "max") {
-        aggregatedValue = Math.max(...values);
-      }
-      result.push({
-        [xaxis]: property,
-        [yaxis]: aggregatedValue,
-      });
-    }
-
-    return result;
-  };
-
-  const generateChart = () => {
-    setShowChart(true);
-    setChartConfig({ type: chartType, x: xaxis, y: yaxis });
-    setChartLoading(true);
-    aggregateData();
-
-    const dataToDisplay = aggregateData();
-    setChartData(dataToDisplay);
-
-    setTimeout(() => {
-      setChartLoading(false);
-    }, 400);
-  };
+  const {
+    chartType,
+    setChartType,
+    xaxis,
+    setXAxis,
+    yaxis,
+    setYAxis,
+    showChart,
+    chartConfig,
+    chartLoading,
+    aggregation,
+    setAggregation,
+    chartData,
+    generateChart,
+    yAxisError,
+  } = useChartBuilder(csvData, columns);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -253,6 +181,7 @@ function App() {
                       </option>
                     ))}
                   </select>
+                  {yAxisError!=="" && <h2 className="text-red-600">{yAxisError}</h2>}
                 </div>
 
                 <div>
@@ -276,6 +205,7 @@ function App() {
                 <button
                   className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
                   onClick={generateChart}
+                  disabled={!!yAxisError}
                 >
                   Generate Chart
                 </button>
@@ -340,18 +270,20 @@ function App() {
                         labelLine={false}
                         label={({ name, percent }) =>
                           `${name}: ${(percent * 100).toFixed(0)}%`
-                        } 
+                        }
                         outerRadius={100}
                         fill="#8884d8"
-                        nameKey={chartConfig.x} 
+                        nameKey={chartConfig.x}
                         dataKey={chartConfig.y}
                       >
-                        {(chartData.length > 0 ? chartData : csvData).map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
+                        {(chartData.length > 0 ? chartData : csvData).map(
+                          (entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          )
+                        )}
                       </Pie>
                       <Tooltip />
                       <Legend />
