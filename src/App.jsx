@@ -13,6 +13,7 @@ import {
   Cell,
   Pie,
   PieChart,
+  ResponsiveContainer,
 } from "recharts";
 
 function App() {
@@ -26,6 +27,8 @@ function App() {
   const [showChart, setShowChart] = useState(false);
   const [chartConfig, setChartConfig] = useState({});
   const [chartLoading, setChartLoading] = useState(false);
+  const [aggregation, setAggregation] = useState("");
+  const [chartData, setChartData] = useState([]);
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -49,6 +52,7 @@ function App() {
               setXAxis(cols[0]);
               setYAxis(cols[1]);
               setChartConfig({ type: "bar", x: cols[0], y: cols[1] });
+              setChartData([]);
             }
           }
           setParseLoading(false);
@@ -60,10 +64,53 @@ function App() {
     }
   };
 
+  const aggregateData = () => {
+    if (!aggregation || aggregation === "") {
+      return csvData;
+    }
+
+    const groupedItems = csvData.reduce((accumulator, currentItem) => {
+      const category = currentItem[xaxis];
+      if (!accumulator[category]) {
+        accumulator[category] = [];
+      }
+      accumulator[category].push(currentItem[yaxis]);
+      return accumulator;
+    }, {});
+
+    const result = [];
+    for (const property in groupedItems) {
+      const values = groupedItems[property];
+      let aggregatedValue;
+
+      if (aggregation === "sum") {
+        aggregatedValue = values.reduce((a, b) => a + b, 0);
+      } else if (aggregation === "average") {
+        aggregatedValue = values.reduce((a, b) => a + b, 0) / values.length;
+      } else if (aggregation === "count") {
+        aggregatedValue = values.length;
+      } else if (aggregation === "min") {
+        aggregatedValue = Math.min(...values);
+      } else if (aggregation === "max") {
+        aggregatedValue = Math.max(...values);
+      }
+      result.push({
+        [xaxis]: property,
+        [yaxis]: aggregatedValue,
+      });
+    }
+
+    return result;
+  };
+
   const generateChart = () => {
     setShowChart(true);
     setChartConfig({ type: chartType, x: xaxis, y: yaxis });
     setChartLoading(true);
+    aggregateData();
+
+    const dataToDisplay = aggregateData();
+    setChartData(dataToDisplay);
 
     setTimeout(() => {
       setChartLoading(false);
@@ -170,6 +217,7 @@ function App() {
                   >
                     <option value="bar">Bar Chart</option>
                     <option value="line">Line Chart</option>
+                    <option value="pie">Pie Chart</option>
                   </select>
                 </div>
 
@@ -207,6 +255,24 @@ function App() {
                   </select>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Aggregation:
+                  </label>
+                  <select
+                    value={aggregation}
+                    onChange={(e) => setAggregation(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="">None</option>
+                    <option value="sum">Sum</option>
+                    <option value="average">Average</option>
+                    <option value="count">Count</option>
+                    <option value="min">Min</option>
+                    <option value="max">Max</option>
+                  </select>
+                </div>
+
                 <button
                   className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
                   onClick={generateChart}
@@ -234,7 +300,11 @@ function App() {
             ) : csvData.length > 0 && showChart ? (
               <div className="flex justify-center">
                 {chartConfig.type === "bar" ? (
-                  <BarChart width={700} height={400} data={csvData}>
+                  <BarChart
+                    width={700}
+                    height={400}
+                    data={chartData.length > 0 ? chartData : csvData}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey={chartConfig.x} />
                     <YAxis />
@@ -243,7 +313,11 @@ function App() {
                     <Bar dataKey={chartConfig.y} fill="#f59e0b" />
                   </BarChart>
                 ) : chartConfig.type === "line" ? (
-                  <LineChart width={700} height={400} data={csvData}>
+                  <LineChart
+                    width={700}
+                    height={400}
+                    data={chartData.length > 0 ? chartData : csvData}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey={chartConfig.x} />
                     <YAxis />
@@ -256,6 +330,33 @@ function App() {
                       strokeWidth={2}
                     />
                   </LineChart>
+                ) : chartConfig.type === "pie" ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={chartData.length > 0 ? chartData : csvData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) =>
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        } 
+                        outerRadius={100}
+                        fill="#8884d8"
+                        nameKey={chartConfig.x} 
+                        dataKey={chartConfig.y}
+                      >
+                        {(chartData.length > 0 ? chartData : csvData).map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
                 ) : null}
               </div>
             ) : (
