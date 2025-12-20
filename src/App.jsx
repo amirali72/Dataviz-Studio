@@ -17,7 +17,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-
 function App() {
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
   const {
@@ -148,7 +147,6 @@ function App() {
                     <option value="pie">Pie Chart</option>
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     X-Axis:
@@ -165,7 +163,6 @@ function App() {
                     ))}
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Y-Axis:
@@ -181,9 +178,10 @@ function App() {
                       </option>
                     ))}
                   </select>
-                  {yAxisError!=="" && <h2 className="text-red-600">{yAxisError}</h2>}
+                  {yAxisError !== "" && (
+                    <h2 className="text-red-600">{yAxisError}</h2>
+                  )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Aggregation:
@@ -203,9 +201,14 @@ function App() {
                 </div>
 
                 <button
-                  className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
+                  className={
+                    (csvData.length > 0 && xaxis && yaxis && yAxisError === "")
+                      ? "bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
+                      : "bg-gray-400 text-white px-6 py-2 rounded-lg cursor-not-allowed mt-4"
+                  }
                   onClick={generateChart}
-                  disabled={!!yAxisError}
+                  disabled={!(csvData.length > 0 && xaxis && yaxis &&
+                yAxisError === "")}
                 >
                   Generate Chart
                 </button>
