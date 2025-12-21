@@ -2,21 +2,7 @@ import { useEffect, useState } from "react";
 import { useCsvData } from "./hooks/useCsvData";
 import { useChartBuilder } from "./hooks/useChartBuilder";
 import { ToastContainer, toast } from "react-toastify";
-import {
-  Bar,
-  BarChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-} from "recharts";
+
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import ChartRenderer from "./common/ChartRenderer";
 
