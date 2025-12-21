@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCsvData } from "./hooks/useCsvData";
 import { useChartBuilder } from "./hooks/useChartBuilder";
+import { ToastContainer, toast } from "react-toastify";
 import {
   Bar,
   BarChart,
@@ -16,9 +17,14 @@ import {
   PieChart,
   ResponsiveContainer,
 } from "recharts";
+import { useLocalStorage } from "./hooks/useLocalStorage";
+import ChartRenderer from "./common/ChartRenderer";
 
 function App() {
+  const [savedCharts, setSavedCharts] = useLocalStorage("dashboardCharts", []);
+
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
   const {
     fileName,
     csvData,
@@ -43,6 +49,47 @@ function App() {
     generateChart,
     yAxisError,
   } = useChartBuilder(csvData, columns);
+
+  const addToDashboard = () => {
+    if (savedCharts.length < 10) {
+      const newChart = {
+        id: Date.now(),
+        type: chartType,
+        x: xaxis,
+        y: yaxis,
+        aggregation: aggregation,
+        data: chartData,
+        config: chartConfig,
+      };
+      setSavedCharts([...savedCharts, newChart]);
+      toast("Chart added to Dashboard", {
+        position: "top-right",
+        autoClose: 500,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else {
+      alert("Maximum 10 charts. Remove one first.");
+      return;
+    }
+  };
+
+  const removeChart = (chartID) => {
+    if (confirm("Remove this chart from dashboard?")) {
+      const newSavedCharts = savedCharts.filter(
+        (chart) => chart.id !== chartID
+      );
+      setSavedCharts(newSavedCharts);
+    }
+  };
+
+  useEffect(() => {
+    console.log(savedCharts);
+  }, [savedCharts]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -202,13 +249,14 @@ function App() {
 
                 <button
                   className={
-                    (csvData.length > 0 && xaxis && yaxis && yAxisError === "")
+                    csvData.length > 0 && xaxis && yaxis && yAxisError === ""
                       ? "bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
                       : "bg-gray-400 text-white px-6 py-2 rounded-lg cursor-not-allowed mt-4"
                   }
                   onClick={generateChart}
-                  disabled={!(csvData.length > 0 && xaxis && yaxis &&
-                yAxisError === "")}
+                  disabled={
+                    !(csvData.length > 0 && xaxis && yaxis && yAxisError === "")
+                  }
                 >
                   Generate Chart
                 </button>
@@ -222,9 +270,19 @@ function App() {
 
           {/* Box 4: Chart Display */}
           <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-xl font-bold text-gray-700 mb-4">
-              📊 Your Chart
-            </h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-700 mb-4">
+                📊 Your Chart
+              </h2>
+              {showChart && !chartLoading && (
+                <button
+                  onClick={addToDashboard}
+                  className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
+                >
+                  Add to Dashboard
+                </button>
+              )}
+            </div>
 
             {chartLoading ? (
               <div className="flex justify-center items-center py-20">
@@ -232,74 +290,80 @@ function App() {
               </div>
             ) : csvData.length > 0 && showChart ? (
               <div className="flex justify-center">
-                {chartConfig.type === "bar" ? (
-                  <BarChart
-                    width={700}
-                    height={400}
-                    data={chartData.length > 0 ? chartData : csvData}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey={chartConfig.x} />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey={chartConfig.y} fill="#f59e0b" />
-                  </BarChart>
-                ) : chartConfig.type === "line" ? (
-                  <LineChart
-                    width={700}
-                    height={400}
-                    data={chartData.length > 0 ? chartData : csvData}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey={chartConfig.x} />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey={chartConfig.y}
-                      stroke="#f59e0b"
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                ) : chartConfig.type === "pie" ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={chartData.length > 0 ? chartData : csvData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) =>
-                          `${name}: ${(percent * 100).toFixed(0)}%`
-                        }
-                        outerRadius={100}
-                        fill="#8884d8"
-                        nameKey={chartConfig.x}
-                        dataKey={chartConfig.y}
-                      >
-                        {(chartData.length > 0 ? chartData : csvData).map(
-                          (entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length]}
-                            />
-                          )
-                        )}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : null}
+                <ChartRenderer
+                  chart={{
+                    type: chartConfig.type,
+                    x: chartConfig.x,
+                    y: chartConfig.y,
+                    data: chartData.length > 0 ? chartData : csvData,
+                    aggregation,
+                  }}
+                  width={700}
+                  height={400}
+                />
               </div>
             ) : (
               <p className="text-gray-500">Chart will appear here</p>
             )}
           </div>
+
+          {/* Box 5: Dashboard */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="text-xl font-bold text-gray-700 mb-4">
+              📊 Dashboard ({savedCharts.length} charts)
+            </h2>
+            {savedCharts.length > 0 && (
+              <button
+                onClick={() => {
+                  if (
+                    confirm("Do you want to remove all charts from Dashboard")
+                  ) {
+                    setSavedCharts([]);
+                  }
+                }}
+                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 cursor-pointer mt-4"
+              >
+                ✕ Remove All
+              </button>
+            )}
+
+            {savedCharts.length === 0 ? (
+              <p className="text-gray-500">
+                No charts in dashboard. Generate a chart and click "Add to
+                Dashboard".
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {savedCharts.map((item, index) => {
+                  return (
+                    <div key={item.id}>
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-semibold text-gray-700">
+                          {item.type.toUpperCase()} Chart -{" "}
+                          {item.x.toUpperCase()} vs {item.y.toUpperCase()}
+                          {item.aggregation &&
+                            ` (${item.aggregation.toUpperCase()})`}
+                        </h3>
+                        <button
+                          onClick={() => removeChart(item.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          ✕ Remove
+                        </button>
+                      </div>
+
+                      <div className="flex justify-center">
+                        <ChartRenderer chart={item} width={350} height={250} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
