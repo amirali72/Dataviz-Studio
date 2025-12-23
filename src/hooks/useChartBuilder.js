@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const useChartBuilder = (csvData, columns) => {
+export const useChartBuilder = (filteredCsvData, columns) => {
     const [chartType, setChartType] = useState("bar");
     const [xaxis, setXAxis] = useState("");
     const [yaxis, setYAxis] = useState("");
@@ -13,10 +13,10 @@ export const useChartBuilder = (csvData, columns) => {
 
     const aggregateData = () => {
         if (!aggregation || aggregation === "") {
-            return csvData;
+            return filteredCsvData;
         }
 
-        const groupedItems = csvData.reduce((accumulator, currentItem) => {
+        const groupedItems = filteredCsvData.reduce((accumulator, currentItem) => {
             const category = currentItem[xaxis];
             if (!accumulator[category]) {
                 accumulator[category] = [];
@@ -78,17 +78,17 @@ export const useChartBuilder = (csvData, columns) => {
     useEffect(() => {
         setChartData([]);
         setShowChart(false);
-    }, [csvData]);
+    }, [filteredCsvData]);
 
     useEffect(() => {
 
-        if (!yaxis || csvData.length === 0) {
+        if (!yaxis || filteredCsvData.length === 0) {
             setYAxisError("");
             return;
         }
 
 
-        const sample = csvData.length > 20 ? csvData.slice(0, 20) : csvData;
+        const sample = filteredCsvData.length > 20 ? filteredCsvData.slice(0, 20) : filteredCsvData;
 
         let hasNonNumeric = false;
 
@@ -114,7 +114,7 @@ export const useChartBuilder = (csvData, columns) => {
         } else {
             setYAxisError("");
         }
-    }, [yaxis, csvData]);
+    }, [yaxis, filteredCsvData]);
 
 
     return {

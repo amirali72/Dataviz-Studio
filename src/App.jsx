@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCsvData } from "./hooks/useCsvData";
 import { useChartBuilder } from "./hooks/useChartBuilder";
 import { ToastContainer, toast } from "react-toastify";
-
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import ChartRenderer from "./common/ChartRenderer";
+import { useDebounce } from "./hooks/useDebounce";
 
 function App() {
-  const [savedCharts, setSavedCharts] = useLocalStorage("dashboardCharts", []);
+  const [filterColumn, setFilterColumn] = useState("");
+  const [filterOperator, setFilterOperator] = useState("=");
+  const [filterValue, setFilterValue] = useState("");
+  const [isFiltered, setIsFiltered] = useState(false);
 
-  const COLORS = [ "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#9b59b6", "#34495e", "#38a86f", "#e74c3c", "#f39c12", "#1abc9c","#2e78d2"];
+  const [savedCharts, setSavedCharts] = useLocalStorage("dashboardCharts", []);
 
   const {
     fileName,
@@ -18,6 +21,36 @@ function App() {
     parseLoading,
     handleSelectFile,
   } = useCsvData();
+
+  const debouncedFilterValue = useDebounce(filterValue, 500);
+
+  const filteredCsvData = useMemo(() => {
+    if (filterColumn === "") return csvData;
+    setIsFiltered(true);
+
+    return csvData.filter((row) => {
+      const cellValue = row[filterColumn];
+      const filterNum = Number(debouncedFilterValue);
+      const cellNum = Number(cellValue);
+
+      switch (filterOperator) {
+        case "=":
+          return cellValue == filterValue;
+        case ">":
+          return cellNum > filterNum;
+        case "<":
+          return cellNum < filterNum;
+        case ">=":
+          return cellNum >= filterNum;
+        case "<=":
+          return cellNum <= filterNum;
+        case "!=":
+          return cellValue != filterValue;
+        default:
+          return true;
+      }
+    });
+  }, [csvData, filterColumn, filterOperator, debouncedFilterValue, isFiltered]);
 
   const {
     chartType,
@@ -34,7 +67,7 @@ function App() {
     chartData,
     generateChart,
     yAxisError,
-  } = useChartBuilder(csvData, columns);
+  } = useChartBuilder(filteredCsvData, columns);
 
   const addToDashboard = () => {
     if (savedCharts.length < 10) {
@@ -74,8 +107,8 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(savedCharts);
-  }, [savedCharts]);
+    console.log(filteredCsvData);
+  }, [filteredCsvData]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -111,6 +144,84 @@ function App() {
 
           {/* Box 2: Preview */}
           <div className="bg-white rounded-xl shadow p-6">
+            {csvData.length > 0 && (
+              <div className="mb-6 p-6  border border-blue-200 rounded-xl">
+                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                  🔍 Filters
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                  {/* Column */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Column
+                    </label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={filterColumn}
+                      onChange={(e) => setFilterColumn(e.target.value)}
+                    >
+                      <option value="">Select column...</option>
+                      {columns.map((col) => (
+                        <option key={col} value={col}>
+                          {col}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Operator */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Operator
+                    </label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={filterOperator}
+                      onChange={(e) => setFilterOperator(e.target.value)}
+                    >
+                      <option value="=">=</option>
+                      <option value=">">&gt;</option>
+                      <option value="<">&lt;</option>
+                      <option value=">=">&ge;</option>
+                      <option value="<=">&le;</option>
+                      <option value="!=">&ne;</option>
+                    </select>
+                  </div>
+
+                  {/* Value */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Value"
+                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        value={filterValue}
+                        onChange={(e) => setFilterValue(e.target.value)}
+                      />
+                      {isFiltered && (
+                        <button
+                          className="px-3 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 whitespace-nowrap"
+                          onClick={() => {
+                            setIsFiltered(false);
+                            setFilterColumn("");
+                            setFilterOperator("=");
+                            setFilterValue("");
+                          }}
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-sm text-gray-600 font-medium">
+                  {`Showing ${filteredCsvData.length} of ${csvData.length} rows`}
+                </div>
+              </div>
+            )}
+
             {parseLoading && (
               <div className="text-center py-8">
                 <div className="text-lg text-gray-600">
@@ -118,7 +229,14 @@ function App() {
                 </div>
               </div>
             )}
-            {csvData.length > 0 ? (
+
+            {filteredCsvData.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-lg text-gray-600">
+                  📊 No rows match this filter
+                </div>
+              </div>
+            ) : csvData.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-gray-300">
                   <thead className="bg-gray-100">
@@ -134,7 +252,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {csvData.slice(0, 5).map((row, index) => (
+                    {filteredCsvData.slice(0, 5).map((row, index) => (
                       <tr key={index} className="hover:bg-gray-50">
                         {columns.map((cols, colIndex) => (
                           <td
@@ -152,7 +270,7 @@ function App() {
             ) : (
               <div>
                 <h2 className="text-xl font-bold text-gray-700 mb-4">
-                  📋 Data Preview (First 5 Rows)
+                  📋 Data Preview
                 </h2>
                 <p className="text-gray-500">Upload a file to see preview</p>
               </div>
@@ -164,7 +282,7 @@ function App() {
             <h2 className="text-xl font-bold text-gray-700 mb-4">
               🎨 Build Your Chart
             </h2>
-            {csvData.length > 0 ? (
+            {filteredCsvData.length > 0 ? (
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -235,13 +353,21 @@ function App() {
 
                 <button
                   className={
-                    csvData.length > 0 && xaxis && yaxis && yAxisError === ""
+                    filteredCsvData.length > 0 &&
+                    xaxis &&
+                    yaxis &&
+                    yAxisError === ""
                       ? "bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 cursor-pointer mt-4"
                       : "bg-gray-400 text-white px-6 py-2 rounded-lg cursor-not-allowed mt-4"
                   }
                   onClick={generateChart}
                   disabled={
-                    !(csvData.length > 0 && xaxis && yaxis && yAxisError === "")
+                    !(
+                      filteredCsvData.length > 0 &&
+                      xaxis &&
+                      yaxis &&
+                      yAxisError === ""
+                    )
                   }
                 >
                   Generate Chart
