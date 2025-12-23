@@ -9,7 +9,7 @@ import ChartRenderer from "./common/ChartRenderer";
 function App() {
   const [savedCharts, setSavedCharts] = useLocalStorage("dashboardCharts", []);
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const COLORS = [ "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#9b59b6", "#34495e", "#38a86f", "#e74c3c", "#f39c12", "#1abc9c","#2e78d2"];
 
   const {
     fileName,
