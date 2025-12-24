@@ -6,14 +6,16 @@ import { toast } from "react-toastify";
 import { useDebounce } from "../hooks/useDebounce";
 import ChartRenderer from "../common/ChartRenderer";
 
-
-const BuilderPage = ({savedCharts, setSavedCharts}) => {
+const BuilderPage = ({ savedCharts, setSavedCharts }) => {
   const [filterColumn, setFilterColumn] = useState("");
   const [filterOperator, setFilterOperator] = useState("=");
   const [filterValue, setFilterValue] = useState("");
   const [isFiltered, setIsFiltered] = useState(false);
 
   const {
+    setCSVData,
+    setFileName,
+    setColumns,
     fileName,
     csvData,
     columns,
@@ -96,6 +98,17 @@ const BuilderPage = ({savedCharts, setSavedCharts}) => {
     }
   };
 
+  const handleRemoveFile = () => {
+    if (confirm(`Do you want to delete the ${fileName}`)) {
+        setCSVData([]);
+        setFileName("");
+        setColumns([]);
+        setFilterColumn("");
+        setFilterOperator("=");
+        setFilterValue("");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow p-6">
@@ -118,6 +131,14 @@ const BuilderPage = ({savedCharts, setSavedCharts}) => {
           <div className="mt-4 text-green-600 font-medium">
             File Uploaded ✅ : {fileName}
           </div>
+        )}
+        {csvData.length > 0 && (
+          <button
+            className="text-red-600 hover:text-red-900 cursor-pointer"
+            onClick={handleRemoveFile}
+          >
+            Remove File
+          </button>
         )}
       </div>
 

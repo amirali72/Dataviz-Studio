@@ -4,7 +4,7 @@ import { NavLink, Link } from "react-router-dom";
 const Navbar = () => {
   return (
     <div>
-      <nav className="navbar">
+      <nav className="flex">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">
           DataViz Studio
         </h1>

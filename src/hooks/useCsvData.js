@@ -36,6 +36,9 @@ export function useCsvData() {
   };
 
   return {
+    setCSVData,
+    setFileName,
+    setColumns,
     fileName,
     csvData,
     columns,
