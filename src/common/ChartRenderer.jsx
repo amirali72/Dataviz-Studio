@@ -1,4 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
+
 import {
   Bar,
   BarChart,
@@ -17,6 +18,7 @@ import {
 
 const ChartRenderer = ({ chart, width = 700, height = 400 }) => {
   const COLORS = [ "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#9b59b6", "#34495e", "#38a86f", "#e74c3c", "#f39c12", "#1abc9c","#2e78d2"];
+  console.log("ChartRenderer render")
 
   if (chart.type === "bar") {
     return (
@@ -79,4 +81,4 @@ const ChartRenderer = ({ chart, width = 700, height = 400 }) => {
   return null;
 };
 
-export default ChartRenderer;
+export default memo(ChartRenderer);

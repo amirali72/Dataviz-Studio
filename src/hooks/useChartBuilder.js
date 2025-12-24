@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const useChartBuilder = (filteredCsvData, columns) => {
     const [chartType, setChartType] = useState("bar");
@@ -11,7 +11,11 @@ export const useChartBuilder = (filteredCsvData, columns) => {
     const [chartData, setChartData] = useState([]);
     const [yAxisError, setYAxisError] = useState("");
 
-    const aggregateData = () => {
+
+
+    const aggregateData = useMemo(() => {
+
+        console.log("aggregateData function render")
         if (!aggregation || aggregation === "") {
             return filteredCsvData;
         }
@@ -48,15 +52,16 @@ export const useChartBuilder = (filteredCsvData, columns) => {
         }
 
         return result;
-    };
+
+    }, [filteredCsvData, xaxis, yaxis, aggregation]);
+
 
     const generateChart = () => {
         setShowChart(true);
         setChartConfig({ type: chartType, x: xaxis, y: yaxis });
         setChartLoading(true);
 
-        const dataToDisplay = aggregateData();
-        setChartData(dataToDisplay);
+        setChartData(aggregateData);
 
         setTimeout(() => {
             setChartLoading(false);

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import Papa from "papaparse";
+import { useLocalStorage } from "./useLocalStorage";
 
 export function useCsvData() {
-  const [fileName, setFileName] = useState("");
-  const [csvData, setCSVData] = useState([]);
-  const [columns, setColumns] = useState([]);
+  const [csvData, setCSVData] = useLocalStorage("CsvData", []);
+  const [fileName, setFileName] = useLocalStorage("CsvFileName", "");
+  const [columns, setColumns] = useLocalStorage("CsvColumns", []);
   const [parseLoading, setParseLoading] = useState(false);
 
   const handleSelectFile = (e) => {
