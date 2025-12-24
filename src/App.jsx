@@ -230,7 +230,7 @@ function App() {
               </div>
             )}
 
-            {filteredCsvData.length === 0 ? (
+            {(filteredCsvData.length === 0 && csvData.length>0) ? (
               <div className="text-center py-8">
                 <div className="text-lg text-gray-600">
                   📊 No rows match this filter
