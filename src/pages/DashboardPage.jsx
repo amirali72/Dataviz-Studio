@@ -19,14 +19,14 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
   const downloadImage = useDownloadImage();  
 
   return (
-    <div className="p-8 m-4 bg-white border rounded-xl border-gray-200 min-h-screen ">
+    <div className="p-8 mx-4 bg-white dark:bg-gray-800  border rounded-xl border-gray-200 min-h-screen ">
       {/* Header */}
       <div className="mb-6 flex justify-between items-start">
         <div>
-          <h1 className="text-xl font-bold  text-gray-700">
+          <h1 className="text-xl font-bold  text-gray-700 dark:text-white">
             Dashboard Overview
           </h1>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-white mt-1">
             Total charts: {savedCharts.length}
           </p>
         </div>
@@ -34,7 +34,7 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
           <div className="flex space-x-6">
             <button
               onClick={()=>downloadImage(printRef)  }
-              className="bg-orange-100 text-black text-sm px-4 py-2 rounded-md hover:bg-orange-300 cursor-pointer flex"
+              className="bg-orange-100 text-black text-sm px-4 py-2 rounded-md hover:bg-orange-300 flex dark:bg-orange-500 dark:hover:bg-orange-600 dark:text-white font-medium"
             >
               <IoMdDownload className="self-center mr-1" /> Download
             </button>
@@ -56,13 +56,13 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
       </div>
 
       {savedCharts.length === 0 ? (
-        <div className="bg-white p-12">
+        <div className="bg-white dark:bg-gray-800 p-12">
           <div className="text-center">
             <div className="text-6xl mb-4">📊</div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-white mb-2">
               No charts in dashboard
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-white">
               Generate a chart and click "Add to Dashboard"
             </p>
           </div>
@@ -73,10 +73,10 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
             return (
               <div
                 key={item.id}
-                className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-700 rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-bold  text-gray-900 text-sm">
+                  <h3 className="font-bold  text-gray-900 dark:text-white text-sm">
                     {item.type.toUpperCase()} Chart - {item.x.toUpperCase()} vs{" "}
                     {item.y.toUpperCase()}
                     {item.aggregation && ` (${item.aggregation.toUpperCase()})`}
@@ -89,7 +89,7 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
                   </button>
                 </div>
 
-                <div className="flex justify-center bg-white rounded-lg p-4">
+                <div className="flex justify-center bg-white dark:bg-gray-700 dark:text-white rounded-lg p-4">
                   <ChartRenderer chart={item} width={350} height={250} />
                 </div>
               </div>

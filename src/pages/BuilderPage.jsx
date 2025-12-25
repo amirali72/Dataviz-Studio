@@ -12,11 +12,13 @@ import { IoIosSave, IoMdDownload } from "react-icons/io";
 import html2canvas from 'html2canvas-pro'
 import { useDownloadImage } from "../hooks/useDownloadImage";
 
+
 const BuilderPage = ({ savedCharts, setSavedCharts }) => {
   const [filterColumn, setFilterColumn] = useState("");
   const [filterOperator, setFilterOperator] = useState("=");
   const [filterValue, setFilterValue] = useState("");
   const [isFiltered, setIsFiltered] = useState(false);
+
 
   const {
     setCSVData,
@@ -29,16 +31,20 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
     handleSelectFile,
   } = useCsvData();
 
+
   const debouncedFilterValue = useDebounce(filterValue, 500);
+
 
   const filteredCsvData = useMemo(() => {
     if (filterColumn === "") return csvData;
     setIsFiltered(true);
 
+
     return csvData.filter((row) => {
       const cellValue = row[filterColumn];
       const filterNum = Number(debouncedFilterValue);
       const cellNum = Number(cellValue);
+
 
       switch (filterOperator) {
         case "=":
@@ -59,6 +65,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
     });
   }, [csvData, filterColumn, filterOperator, debouncedFilterValue, isFiltered]);
 
+
   const {
     chartType,
     setChartType,
@@ -75,6 +82,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
     generateChart,
     yAxisError,
   } = useChartBuilder(filteredCsvData, columns);
+
 
   const addToDashboard = () => {
     if (savedCharts.length < 10) {
@@ -104,6 +112,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
     }
   };
 
+
   const handleRemoveFile = () => {
     if (confirm(`Do you want to delete the ${fileName}`)) {
       setCSVData([]);
@@ -115,18 +124,21 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
     }
   };
 
+
   const printRef = useRef(null); // Create a ref
   const downloadImage = useDownloadImage();
 
+
   return (
-    <div className="flex gap-6 p-6 bg-gray-50 min-h-screen">
+    <div className="flex gap-6 p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Left Sidebar */}
       <div className="w-80 shrink-0 space-y-6">
         {/* Data Source */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 ">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 ">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
             Data Source
           </h2>
+
 
           <input
             type="file"
@@ -136,21 +148,21 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
             id="file-input"
           />
           <label htmlFor="file-input">
-            <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed bg-gray-50 border-gray-300 rounded-lg mb-4 cursor-pointer">
+            <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-lg mb-4 cursor-pointer">
               <div className="text-4xl mb-3">
                 <FiUploadCloud className="text-amber-600" />
               </div>
-              <p className="text-sm text-gray-600 text-center mb-2">
+              <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-2">
                 Click to upload or drag and drop
               </p>
-              <p className="text-xs text-gray-400">CSV, XLSX or Excel</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">CSV, XLSX or Excel</p>
               <div className="bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-amber-700 cursor-pointer text-center mt-4">
                 Browse Files
               </div>
             </div>
           </label>
           {fileName && (
-            <div className="mt-4 flex items-center justify-between p-3 border border-amber-200 rounded-lg text-amber-600 bg-white">
+            <div className="mt-4 flex items-center justify-between p-3 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-600 dark:text-amber-400 bg-white dark:bg-gray-700">
               <div className="flex items-center gap-3">
                 <div className=" text-xl">
                   <FaRegFileAlt />
@@ -172,21 +184,22 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
           )}
         </div>
 
+
         {/* Configuration */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
             Configuration
           </h2>
           {filteredCsvData.length > 0 ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Chart Type
                 </label>
                 <select
                   value={chartType}
                   onChange={(e) => setChartType(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value="bar">📊 Bar Chart</option>
                   <option value="line">📈 Line Chart</option>
@@ -194,13 +207,13 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                   X-Axis Dimension
                 </label>
                 <select
                   value={xaxis}
                   onChange={(e) => setXAxis(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   {columns.map((cols, index) => (
                     <option key={index} value={cols}>
@@ -210,13 +223,13 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Y-Axis Metric
                 </label>
                 <select
                   value={yaxis}
                   onChange={(e) => setYAxis(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   {columns.map((cols, index) => (
                     <option key={index} value={cols}>
@@ -229,13 +242,13 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 )}
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Aggregation
                 </label>
                 <select
                   value={aggregation}
                   onChange={(e) => setAggregation(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value="">None</option>
                   <option value="sum">Sum</option>
@@ -246,6 +259,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 </select>
               </div>
 
+
               <button
                 className={
                   filteredCsvData.length > 0 &&
@@ -253,7 +267,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                   yaxis &&
                   yAxisError === ""
                     ? "w-full bg-orange-500 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-orange-600 cursor-pointer mt-4"
-                    : "w-full bg-gray-300 text-gray-500 text-sm font-medium px-4 py-2 rounded-md cursor-not-allowed mt-4"
+                    : "w-full bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium px-4 py-2 rounded-md cursor-not-allowed mt-4"
                 }
                 onClick={generateChart}
                 disabled={
@@ -269,28 +283,31 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
               </button>
             </div>
           ) : (
-            <p className="text-sm text-gray-500">Upload data to configure</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Upload data to configure</p>
           )}
         </div>
       </div>
+
 
       {/* Right Content Area */}
       <div className="flex-1 space-y-6">
         {/* Filters & Source Data Preview */}
 
+
         {csvData.length > 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
               🔍 Filters & Preview
             </h3>
 
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Column
                 </label>
                 <select
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   value={filterColumn}
                   onChange={(e) => setFilterColumn(e.target.value)}
                 >
@@ -303,12 +320,13 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 </select>
               </div>
 
+
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Operator
                 </label>
                 <select
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   value={filterOperator}
                   onChange={(e) => setFilterOperator(e.target.value)}
                 >
@@ -321,17 +339,18 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 </select>
               </div>
 
+
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Value"
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
                 />
                 {isFiltered && (
                   <button
-                    className="px-3 py-2 text-sm border border-red-500 text-red-500 rounded-md hover:bg-red-50 whitespace-nowrap"
+                    className="px-3 py-2 text-sm border border-red-500 text-red-500 rounded-md hover:bg-red-50 dark:hover:bg-red-900 whitespace-nowrap"
                     onClick={() => {
                       setIsFiltered(false);
                       setFilterColumn("");
@@ -345,30 +364,33 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
               </div>
             </div>
 
-            <div className="mt-4 text-xs text-gray-600">
+
+            <div className="mt-4 text-xs text-gray-600 dark:text-gray-400">
               {`${filteredCsvData.length} rows filtered`}
             </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mt-2">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mt-2">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-sm font-semibold text-gray-700">
+                <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   Source Data Preview
                 </h2>
                 {csvData.length > 0 && (
-                  <span className="text-xs text-gray-500">5 rows shown</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">5 rows shown</span>
                 )}
               </div>
 
+
               {parseLoading && (
                 <div className="text-center py-8">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
                     📊 Parsing your data...
                   </div>
                 </div>
               )}
 
+
               {filteredCsvData.length === 0 && csvData.length > 0 ? (
                 <div className="text-center py-8">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     No rows match this filter
                   </div>
                 </div>
@@ -376,10 +398,10 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200">
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
                         {columns.map((col, index) => (
                           <th
-                            className="text-left py-3 px-4 font-medium text-gray-700"
+                            className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-200"
                             key={index}
                           >
                             {col}
@@ -391,11 +413,11 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                       {filteredCsvData.slice(0, 5).map((row, index) => (
                         <tr
                           key={index}
-                          className="border-b border-gray-100 hover:bg-gray-50"
+                          className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
                           {columns.map((cols, colIndex) => (
                             <td
-                              className="py-3 px-4 text-gray-600"
+                              className="py-3 px-4 text-gray-600 dark:text-gray-300"
                               key={colIndex}
                             >
                               {row[cols]}
@@ -410,27 +432,28 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
             </div>
           </div>
         ) : (
-          <div className=" bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">
+          <div className=" bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
               🔍 Filters & Preview
             </h3>
             <div className="flex justify-center items-center py-32">
-              <p className="text-gray-400">Upload file to see preview</p>
+              <p className="text-gray-400 dark:text-gray-500">Upload file to see preview</p>
             </div>
           </div>
         )}
 
+
         {/* Visualization Preview */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-sm font-semibold text-gray-700">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Visualization Preview
             </h2>
             {showChart && !chartLoading && (
               <div className="flex space-x-6">
                 <button
                   onClick={()=>downloadImage(printRef)}
-                  className="bg-orange-100 text-black text-sm px-4 py-2 rounded-md hover:bg-orange-300 cursor-pointer flex"
+                  className="bg-orange-100 dark:bg-orange-900 text-black dark:text-white text-sm px-4 py-2 rounded-md hover:bg-orange-300 dark:hover:bg-orange-800 cursor-pointer flex"
                 >
                   <IoMdDownload className="self-center mr-1" /> Download
                 </button>
@@ -443,6 +466,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
               </div>
             )}
           </div>
+
 
           {chartLoading ? (
             <div className="flex justify-center items-center py-32">
@@ -465,7 +489,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
             </div>
           ) : (
             <div className="flex justify-center items-center py-32">
-              <p className="text-gray-400">Chart will appear here</p>
+              <p className="text-gray-400 dark:text-gray-500">Chart will appear here</p>
             </div>
           )}
         </div>
@@ -473,5 +497,6 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
     </div>
   );
 };
+
 
 export default BuilderPage;
