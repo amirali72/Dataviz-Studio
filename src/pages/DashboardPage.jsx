@@ -15,7 +15,8 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
     }
   };
 
-  const printRef = useRef(null); 
+  const printRef = useRef(null);
+  const downloadImage = useDownloadImage();  
 
   return (
     <div className="p-8 m-4 bg-white border rounded-xl border-gray-200 min-h-screen ">
@@ -32,7 +33,7 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
         {savedCharts.length > 0 && (
           <div className="flex space-x-6">
             <button
-              onClick={()=>useDownloadImage(printRef)}
+              onClick={()=>downloadImage(printRef)  }
               className="bg-orange-100 text-black text-sm px-4 py-2 rounded-md hover:bg-orange-300 cursor-pointer flex"
             >
               <IoMdDownload className="self-center mr-1" /> Download

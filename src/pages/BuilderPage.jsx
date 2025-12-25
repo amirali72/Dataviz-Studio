@@ -116,6 +116,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
   };
 
   const printRef = useRef(null); // Create a ref
+  const downloadImage = useDownloadImage();
 
   return (
     <div className="flex gap-6 p-6 bg-gray-50 min-h-screen">
@@ -428,7 +429,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
             {showChart && !chartLoading && (
               <div className="flex space-x-6">
                 <button
-                  onClick={()=>useDownloadImage(printRef)}
+                  onClick={()=>downloadImage(printRef)}
                   className="bg-orange-100 text-black text-sm px-4 py-2 rounded-md hover:bg-orange-300 cursor-pointer flex"
                 >
                   <IoMdDownload className="self-center mr-1" /> Download
