@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useCsvData } from "../hooks/useCsvData";
 import { useChartBuilder } from "../hooks/useChartBuilder";
 import { useMemo, useState } from "react";
@@ -9,6 +9,8 @@ import { FiUploadCloud } from "react-icons/fi";
 import { FaRegFileAlt } from "react-icons/fa";
 import { CiCircleCheck } from "react-icons/ci";
 import { IoIosSave, IoMdDownload } from "react-icons/io";
+import html2canvas from 'html2canvas-pro'
+import { useDownloadImage } from "../hooks/useDownloadImage";
 
 const BuilderPage = ({ savedCharts, setSavedCharts }) => {
   const [filterColumn, setFilterColumn] = useState("");
@@ -112,6 +114,8 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
       setFilterValue("");
     }
   };
+
+  const printRef = useRef(null); // Create a ref
 
   return (
     <div className="flex gap-6 p-6 bg-gray-50 min-h-screen">
@@ -424,10 +428,10 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
             {showChart && !chartLoading && (
               <div className="flex space-x-6">
                 <button
-                  onClick={addToDashboard}
+                  onClick={()=>useDownloadImage(printRef)}
                   className="bg-orange-100 text-black text-sm px-4 py-2 rounded-md hover:bg-orange-300 cursor-pointer flex"
                 >
-                  <IoMdDownload className="self-center mr-1" /> Export
+                  <IoMdDownload className="self-center mr-1" /> Download
                 </button>
                 <button
                   onClick={addToDashboard}
@@ -444,7 +448,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500"></div>
             </div>
           ) : csvData.length > 0 && showChart ? (
-            <div className="flex justify-center">
+            <div className="flex justify-center" ref={printRef}>
               <ChartRenderer
                 chart={{
                   type: chartConfig.type,
@@ -455,6 +459,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
                 }}
                 width={700}
                 height={400}
+                
               />
             </div>
           ) : (

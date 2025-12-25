@@ -1,7 +1,9 @@
-import React from "react";
+import React, {useRef} from "react";
 import ChartRenderer from "../common/ChartRenderer";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoMdDownload } from "react-icons/io";
+import html2canvas from "html2canvas-pro";
+import { useDownloadImage } from "../hooks/useDownloadImage";
 
 const DashboardPage = ({ savedCharts, setSavedCharts }) => {
   const removeChart = (chartID) => {
@@ -12,6 +14,8 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
       setSavedCharts(newSavedCharts);
     }
   };
+
+  const printRef = useRef(null); 
 
   return (
     <div className="p-8 m-4 bg-white border rounded-xl border-gray-200 min-h-screen ">
@@ -28,10 +32,10 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
         {savedCharts.length > 0 && (
           <div className="flex space-x-6">
             <button
-              
+              onClick={()=>useDownloadImage(printRef)}
               className="bg-orange-100 text-black text-sm px-4 py-2 rounded-md hover:bg-orange-300 cursor-pointer flex"
             >
-              <IoMdDownload className="self-center mr-1" /> Export
+              <IoMdDownload className="self-center mr-1" /> Download
             </button>
             <button
               onClick={() => {
@@ -63,7 +67,7 @@ const DashboardPage = ({ savedCharts, setSavedCharts }) => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-t border-gray-200 pt-9">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-t border-gray-200 pt-9 " ref={printRef}>
           {savedCharts.map((item, index) => {
             return (
               <div
