@@ -130,11 +130,11 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
 
 
   return (
-    <div className="flex gap-6 p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Left Sidebar */}
-      <div className="w-80 shrink-0 space-y-6">
+      <div className="w-full lg:w-80 lg:shrink-0 space-y-6">
         {/* Data Source */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 ">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 ">
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
             Data Source
           </h2>
@@ -186,7 +186,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
 
 
         {/* Configuration */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
             Configuration
           </h2>
@@ -295,7 +295,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
 
 
         {csvData.length > 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
               🔍 Filters & Preview
             </h3>
@@ -368,7 +368,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
             <div className="mt-4 text-xs text-gray-600 dark:text-gray-400">
               {`${filteredCsvData.length} rows filtered`}
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mt-2">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mt-2">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   Source Data Preview
@@ -444,13 +444,13 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
 
 
         {/* Visualization Preview */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Visualization Preview
             </h2>
             {showChart && !chartLoading && (
-              <div className="flex space-x-6">
+              <div className="flex flex-wrap gap-2 sm:space-x-6 sm:gap-0">
                 <button
                   onClick={()=>downloadImage(printRef)}
                   className="bg-orange-100 dark:bg-orange-900 text-black dark:text-white text-sm px-4 py-2 rounded-md hover:bg-orange-300 dark:hover:bg-orange-800 cursor-pointer flex"
@@ -473,7 +473,7 @@ const BuilderPage = ({ savedCharts, setSavedCharts }) => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500"></div>
             </div>
           ) : csvData.length > 0 && showChart ? (
-            <div className="flex justify-center" ref={printRef}>
+            <div className="flex justify-center overflow-x-auto" ref={printRef}>
               <ChartRenderer
                 chart={{
                   type: chartConfig.type,
