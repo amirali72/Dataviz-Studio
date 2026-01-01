@@ -9,7 +9,7 @@
 > **A modern web application for uploading CSV files, filtering data, and generating interactive charts with a beautiful dashboard experience.**
 
 🌐 **Live Demo:**
-👉 [https://dataviz-studio.vercel.app/]
+👉 https://dataviz-studio.vercel.app/
 
 ---
 
